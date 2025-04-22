@@ -1,5 +1,7 @@
 # zaztooth
 
+Zaztooth is a local web interface for Bluetooth Low Energy (BLE) operations including scanning, mesh broadcasting, and optional Ubertooth support.
+
 INSTALLATION
 
 Install required packages
