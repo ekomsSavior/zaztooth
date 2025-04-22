@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import subprocess
 import shutil
+import time
 
 app = Flask(__name__)
 
@@ -14,11 +15,16 @@ def scan():
 
     try:
         if scan_type == "hcitool":
-            output = subprocess.check_output(
-                ["hcitool", "lescan", "--duplicates"],
-                stderr=subprocess.STDOUT,
-                timeout=10
+            # Run continuous scan for 5 seconds then terminate
+            proc = subprocess.Popen(
+                ["hcitool", "-i", "hci0", "lescan", "--duplicates"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
             )
+            time.sleep(5)
+            proc.terminate()
+            output, _ = proc.communicate()
+
         elif scan_type == "ubertooth":
             if shutil.which("ubertooth-scan"):
                 output = subprocess.check_output(
@@ -28,12 +34,14 @@ def scan():
                 )
             else:
                 return jsonify({"error": "Ubertooth not found. Try: sudo apt install ubertooth"})
+
         elif scan_type == "mesh":
             output = subprocess.check_output(
                 ["python3", "mesh_broadcast.py"],
                 stderr=subprocess.STDOUT,
                 timeout=10
             )
+
         else:
             return jsonify({"error": "Invalid scan type."})
 
@@ -45,6 +53,6 @@ def scan():
         return jsonify({"error": f"Tool not found: {e}"})
     except subprocess.TimeoutExpired:
         return jsonify({"error": "Scan timed out. Try again or check your adapter."})
-                       
+
 if __name__ == "__main__":
     app.run(debug=True)
