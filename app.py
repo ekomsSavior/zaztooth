@@ -54,5 +54,34 @@ def scan():
     except subprocess.TimeoutExpired:
         return jsonify({"error": "Scan timed out. Try again or check your adapter."})
 
+
+@app.route("/action")
+def action():
+    mac = request.args.get("mac")
+    mode = request.args.get("mode")
+
+    try:
+        if not mac or not mode:
+            return jsonify({"error": "Missing MAC or mode"})
+
+        if mode == "spoof":
+            # Placeholder spoof response (can later be tied to btmgmt or bettercap)
+            return jsonify({"output": f"[*] Spoofed BLE name to mimic {mac} (simulation only)"})
+
+        elif mode == "fuzz":
+            # Placeholder fuzz response (can later call Buzzkill tool)
+            return jsonify({"output": f"[*] Fuzzed BLE device {mac} (simulated payload sent)"})
+
+        elif mode == "mesh":
+            # Placeholder mesh control broadcast
+            return jsonify({"output": f"[*] Sent mesh command to {mac} (broadcast simulated)"})
+
+        else:
+            return jsonify({"error": "Unknown action mode"})
+
+    except Exception as e:
+        return jsonify({"error": f"Action failed: {e}"})
+
+
 if __name__ == "__main__":
     app.run(debug=True)
