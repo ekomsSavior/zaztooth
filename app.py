@@ -45,3 +45,7 @@ def scan():
         return jsonify({"error": f"Tool not found: {e}"})
     except subprocess.TimeoutExpired:
         return jsonify({"error": "Scan timed out. Try again or check your adapter."})
+
+# 💥 THIS is what was missing!
+if __name__ == "__main__":
+    app.run(debug=True)
