@@ -2,8 +2,43 @@
 <html>
 <head>
     <title>Zaztooth</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #0ff;
+            font-family: monospace;
+            text-align: center;
+        }
+
+        .spinner {
+            display: none;
+            font-size: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        button, select {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0ff;
+            border: none;
+            border-radius: 8px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        select {
+            font-family: monospace;
+        }
+    </style>
 </head>
-<body style="background-color:#000; color:#0ff; font-family:monospace; text-align:center;">
+<body>
 <pre style="font-size: 12px; text-shadow: 0 0 5px #0ff;">
 ▄▄▄▄▖ ▗▄▖ ▗▄▄▄▄▖▗▄▄▄▖▗▄▖  ▗▄▖▗▄▄▄▖▗▖ ▗▖
   ▗▞▘▐▌ ▐▌   ▗▞▘  █ ▐▌ ▐▌▐▌ ▐▌ █  ▐▌ ▐▌
@@ -11,16 +46,35 @@
 ▙▄▄▄▖▐▌ ▐▌▐▙▄▄▄▖  █ ▝▚▄▞▘▝▚▄▞▘ █  ▐▌ ▐▌
 </pre>
 
-    <h2>Zaztooth — Ubertooth Web Scanner</h2>
+    <h2>Zaztooth — BLE Command Center</h2>
+
+    <select id="scanType">
+        <option value="hcitool">🔍 Basic BLE Scan (hcitool)</option>
+        <option value="ubertooth">🧠 Ubertooth Scan (ubertooth-scan)</option>
+        <option value="mesh">🤖 Mesh Broadcast Mode</option>
+    </select>
+
     <button onclick="runScan()">Start Scan</button>
+
+    <div class="spinner" id="spinner">🔄 Scanning...</div>
+
     <pre id="output"></pre>
 
     <script>
+        let lastOutput = "";
+
         function runScan() {
-            fetch("/scan")
+            document.getElementById("spinner").style.display = "inline-block";
+            document.getElementById("output").innerText = "";
+
+            const scanType = document.getElementById("scanType").value;
+
+            fetch("/scan?type=" + scanType)
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById("output").innerText = data.output || data.error;
+                    document.getElementById("spinner").style.display = "none";
+                    lastOutput = data.output || data.error;
+                    document.getElementById("output").innerText = lastOutput;
                 });
         }
     </script>
