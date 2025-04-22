@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zaztooth</title>
+</head>
+<body style="background-color:#000; color:#0ff; font-family:monospace; text-align:center;">
+<pre style="font-size: 12px; text-shadow: 0 0 5px #0ff;">
+▗▄▄▄▄▖ ▗▄▖ ▗▄▄▄▄▖▗▄▄▄▖▗▄▖  ▗▄▖▗▄▄▄▖▗▖ ▗▖
+  ▗▞▘▐▌ ▐▌   ▗▞▘  █ ▐▌ ▐▌▐▌ ▐▌ █  ▐▌ ▐▌
+▗▞▘  ▐▛▀▜▌ ▗▞▘    █ ▐▌ ▐▌▐▌ ▐▌ █  ▐▛▀▜▌
+▐▙▄▄▄▖▐▌ ▐▌▐▙▄▄▄▖  █ ▝▚▄▞▘▝▚▄▞▘ █  ▐▌ ▐▌
+</pre>
+
+    <h2>Zaztooth — Ubertooth Web Scanner</h2>
+    <button onclick="runScan()">Start Scan</button>
+    <pre id="output"></pre>
+
+    <script>
+        function runScan() {
+            fetch("/scan")
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("output").innerText = data.output || data.error;
+                });
+        }
+    </script>
+</body>
+</html>
