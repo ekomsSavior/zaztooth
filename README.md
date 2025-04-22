@@ -20,9 +20,8 @@ SCAN MODES
 
 Use the dropdown in the interface to choose from
 
-    Basic BLE Scan: uses hcitool for standard BLE device discovery
+Basic BLE Scan: uses hcitool for standard BLE device discovery
 
-    Ubertooth Scan: uses ubertooth-scan if installed and connected
+Ubertooth Scan: uses ubertooth-scan if installed and connected
 
-    Mesh Broadcast: runs mesh_broadcast.py to send commands to BLE mesh bots
- 
+Mesh Broadcast: runs mesh_broadcast.py to send commands to BLE mesh bots (coming soon)
