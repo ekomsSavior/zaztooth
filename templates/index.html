@@ -36,6 +36,18 @@
         select {
             font-family: monospace;
         }
+
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 90%;
+        }
+
+        th, td {
+            border: 1px solid #0ff;
+            padding: 8px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -46,37 +58,88 @@
 ▙▄▄▄▖▐▌ ▐▌▐▙▄▄▄▖  █ ▝▚▄▞▘▝▚▄▞▘ █  ▐▌ ▐▌
 </pre>
 
-    <h2>Zaztooth — BLE Command Center</h2>
+<h2>Zaztooth — BLE Command Center</h2>
 
-    <select id="scanType">
-        <option value="hcitool">🔍 Basic BLE Scan (hcitool)</option>
-        <option value="ubertooth">🧠 Ubertooth Scan (ubertooth-scan)</option>
-        <option value="mesh">🤖 Mesh Broadcast Mode</option>
-    </select>
+<select id="scanType">
+    <option value="hcitool">🔍 Basic BLE Scan (hcitool)</option>
+    <option value="ubertooth">🧠 Ubertooth Scan (ubertooth-scan)</option>
+    <option value="mesh">🤖 Mesh Broadcast Mode</option>
+</select>
 
-    <button onclick="runScan()">Start Scan</button>
+<button onclick="runScan()">Start Scan</button>
+<button onclick="downloadResults()">Save Results (txt)</button>
 
-    <div class="spinner" id="spinner">🔄 Scanning...</div>
+<div class="spinner" id="spinner">🔄 Scanning...</div>
 
-    <pre id="output"></pre>
+<table>
+    <thead>
+        <tr>
+            <th>MAC Address</th>
+            <th>Device Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="result-table"></tbody>
+</table>
 
-    <script>
-        let lastOutput = "";
+<script>
+    let lastOutput = "";
 
-        function runScan() {
-            document.getElementById("spinner").style.display = "inline-block";
-            document.getElementById("output").innerText = "";
+    function runScan() {
+        document.getElementById("spinner").style.display = "inline-block";
+        document.getElementById("result-table").innerHTML = "";
+        lastOutput = "";
 
-            const scanType = document.getElementById("scanType").value;
+        const scanType = document.getElementById("scanType").value;
 
-            fetch("/scan?type=" + scanType)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById("spinner").style.display = "none";
-                    lastOutput = data.output || data.error;
-                    document.getElementById("output").innerText = lastOutput;
+        fetch("/scan?type=" + scanType)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("spinner").style.display = "none";
+                lastOutput = data.output || data.error;
+
+                const lines = lastOutput.split("\n");
+                const seen = new Set();
+
+                lines.forEach(line => {
+                    const parts = line.trim().split(" ");
+                    const mac = parts[0];
+                    const name = parts.slice(1).join(" ");
+
+                    if (/([0-9A-F]{2}:){5}[0-9A-F]{2}/i.test(mac) && !seen.has(mac)) {
+                        seen.add(mac);
+
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${mac}</td>
+                            <td>${name || "(unknown)"}</td>
+                            <td>
+                                <button onclick="sendAction('${mac}', 'spoof')">Spoof</button>
+                                <button onclick="sendAction('${mac}', 'fuzz')">Fuzz</button>
+                                <button onclick="sendAction('${mac}', 'mesh')">Mesh</button>
+                            </td>
+                        `;
+                        document.getElementById("result-table").appendChild(row);
+                    }
                 });
-        }
-    </script>
+            });
+    }
+
+    function sendAction(mac, mode) {
+        fetch(`/action?mac=${mac}&mode=${mode}`)
+            .then(res => res.json())
+            .then(data => alert(data.output || data.error));
+    }
+
+    function downloadResults() {
+        const blob = new Blob([lastOutput], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "zaztooth_ble_scan.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
 </body>
 </html>
