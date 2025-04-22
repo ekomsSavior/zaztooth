@@ -18,7 +18,7 @@ RUNNING
 
 Start the local server
 
-python3 app.py
+sudo python3 app.py
 
 ACCESS
 
